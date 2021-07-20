@@ -6,11 +6,7 @@ mod todo;
 use std::convert::TryInto;
 
 use actix_web::{
-    delete,
-    dev::Service,
-    get,
-    http::header::{CacheControl, CacheDirective, IntoHeaderValue, CACHE_CONTROL},
-    middleware, patch, post, put,
+    delete, get, patch, post, put,
     web::{Data, Json, JsonConfig, Path, Query},
     App, HttpServer,
 };
@@ -167,17 +163,11 @@ async fn main() -> std::io::Result<()> {
 
     let bind_address = format!("0.0.0.0:{}", &APP_SETTINGS.server_port);
 
-    let cache = CacheControl(vec![CacheDirective::Public, CacheDirective::MaxAge(60u32)]);
-    let cache_header_value = IntoHeaderValue::try_into(cache).unwrap();
-
     HttpServer::new(move || {
         App::new()
             .app_data(json_cfg.clone())
             // Adds db into the app context
             .data(db.clone())
-            .wrap(
-                middleware::DefaultHeaders::new().header(CACHE_CONTROL, cache_header_value.clone()),
-            )
             // Register all our routes
             .service(post_todo)
             .service(get_all_todos)
